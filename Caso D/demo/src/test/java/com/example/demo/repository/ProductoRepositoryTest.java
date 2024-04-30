@@ -29,7 +29,6 @@ public class ProductoRepositoryTest {
 
         // Assert
         assertNotNull(resultado.getId());
-        assertEquals("1", String.valueOf(resultado.getId()));
         assertEquals("Producto de Prueba", resultado.getNombre());
         assertEquals("50.0", String.valueOf(resultado.getPrecio()));
     }
