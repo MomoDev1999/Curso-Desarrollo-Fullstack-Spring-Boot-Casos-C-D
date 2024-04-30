@@ -1,0 +1,9 @@
+com\example\demo\repository\UsuarioRepositoryTest.class
+com\example\demo\DemoApplicationTests.class
+com\example\demo\repository\CalificacionRepositoryTest.class
+com\example\demo\repository\ComentariosRepositoryTest.class
+com\example\demo\service\PublicacionServiceImplTest.class
+com\example\demo\service\CalificacionServiceImplTest.class
+com\example\demo\service\ComentariosServiceImplTest.class
+com\example\demo\service\UsuarioServiceImplTest.class
+com\example\demo\repository\PublicacionRepositoryTest.class
