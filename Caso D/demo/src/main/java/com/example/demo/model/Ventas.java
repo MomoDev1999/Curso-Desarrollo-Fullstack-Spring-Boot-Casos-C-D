@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.sql.Date;
+
 // HATEOAS
 import org.springframework.hateoas.RepresentationModel;
 
@@ -25,7 +27,7 @@ public class Ventas extends RepresentationModel<Ventas> {
     private double total;
 
     @Column(name = "fecha")
-    private String fecha;
+    private Date fecha;
 
     @Column(name = "id_producto")
     private int idProducto;
@@ -36,7 +38,8 @@ public class Ventas extends RepresentationModel<Ventas> {
     public Ventas() {
     }
 
-    public Ventas(int cantidad, double total, String fecha, int idProducto, int idVendedor) {
+    public Ventas(int id, int cantidad, double total, Date fecha, int idProducto, int idVendedor) {
+        this.id = id;
         this.cantidad = cantidad;
         this.total = total;
         this.fecha = fecha;
@@ -68,11 +71,11 @@ public class Ventas extends RepresentationModel<Ventas> {
         this.total = total;
     }
 
-    public String getFecha() {
+    public Date getFecha() {
         return fecha;
     }
 
-    public void setFecha(String fecha) {
+    public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
 

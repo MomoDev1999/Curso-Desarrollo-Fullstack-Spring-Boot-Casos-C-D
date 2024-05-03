@@ -3,6 +3,8 @@ package com.example.demo.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.sql.Date;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -23,7 +25,7 @@ public class VentasRepositoryTest {
         Ventas ventas = new Ventas();
         ventas.setCantidad(10);
         ventas.setTotal(1000.0);
-        ventas.setFecha("2022-01-01");
+        ventas.setFecha(Date.valueOf("2022-01-01"));
         ventas.setIdProducto(1);
         ventas.setIdVendedor(1);
 
@@ -32,10 +34,10 @@ public class VentasRepositoryTest {
 
         // Assert
         assertNotNull(resultado.getId());
-        assertEquals("10", resultado.getCantidad());
-        assertEquals("1000.0", resultado.getTotal());
-        assertEquals("2022-01-01", resultado.getFecha());
-        assertEquals("1", resultado.getIdProducto());
-        assertEquals("1", resultado.getIdVendedor());
+        assertEquals(10, resultado.getCantidad());
+        assertEquals(1000.0, resultado.getTotal(), 0.01);
+        assertEquals(1, resultado.getIdProducto());
+        assertEquals(1, resultado.getIdVendedor());
     }
+
 }

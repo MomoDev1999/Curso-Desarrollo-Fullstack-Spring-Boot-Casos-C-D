@@ -27,7 +27,8 @@ public class Producto extends RepresentationModel<Producto> {
     public Producto() {
     }
 
-    public Producto(String nombre, double precio) {
+    public Producto(int id, String nombre, double precio) {
+        this.id = id;
         this.nombre = nombre;
         this.precio = precio;
     }

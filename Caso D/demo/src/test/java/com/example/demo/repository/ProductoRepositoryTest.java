@@ -21,6 +21,7 @@ public class ProductoRepositoryTest {
     public void testSaveProducto() {
         // Arrange
         Producto producto = new Producto();
+        producto.setId(1);
         producto.setNombre("Producto de Prueba");
         producto.setPrecio(50.0);
 
@@ -29,6 +30,7 @@ public class ProductoRepositoryTest {
 
         // Assert
         assertNotNull(resultado.getId());
+        assertEquals(1, resultado.getId());
         assertEquals("Producto de Prueba", resultado.getNombre());
         assertEquals("50.0", String.valueOf(resultado.getPrecio()));
     }

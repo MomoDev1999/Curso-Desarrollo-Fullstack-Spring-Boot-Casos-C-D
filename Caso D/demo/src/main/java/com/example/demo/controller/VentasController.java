@@ -3,16 +3,19 @@ package com.example.demo.controller;
 import com.example.demo.model.Ventas;
 import com.example.demo.service.VentasService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/ventas")
@@ -22,24 +25,59 @@ public class VentasController {
     private VentasService ventasService;
 
     @GetMapping
-    public List<Ventas> getAllVentas() {
-        return ventasService.getAllVentas();
+    public CollectionModel<EntityModel<Ventas>> getAllVentas() {
+        List<Ventas> ventas = ventasService.getAllVentas();
+        List<EntityModel<Ventas>> ventasResources = ventas.stream()
+                .map(venta -> EntityModel.of(venta,
+                        WebMvcLinkBuilder
+                                .linkTo(WebMvcLinkBuilder.methodOn(VentasController.class).getVentasById(venta.getId()))
+                                .withSelfRel()))
+                .collect(Collectors.toList());
+        WebMvcLinkBuilder linkTo = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder.methodOn(VentasController.class).getAllVentas());
+        CollectionModel<EntityModel<Ventas>> resources = CollectionModel.of(ventasResources, linkTo.withRel("ventas"));
+        return resources;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ventas> getVentasById(@PathVariable int id) {
-        Optional<Ventas> ventas = ventasService.getVentasById(id);
-        return ventas.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<EntityModel<Ventas>> getVentasById(@PathVariable int id) {
+        Optional<Ventas> ventasOptional = ventasService.getVentasById(id);
+        if (ventasOptional.isPresent()) {
+            Ventas ventas = ventasOptional.get();
+            EntityModel<Ventas> resource = EntityModel.of(ventas,
+                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(VentasController.class).getVentasById(id))
+                            .withSelfRel());
+            return ResponseEntity.ok(resource);
+        } else {
+            throw new VentasNotFoundException("Registro de ventas no encontrado con id: " + id);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Ventas> createVentas(@RequestBody Ventas ventas) {
+    public ResponseEntity<EntityModel<Ventas>> createVentas(@RequestBody Ventas ventas) {
+        // Obtener la fecha actual
+        java.util.Date utilDate = new java.util.Date();
+        java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+
+        // Establecer la fecha actual en la venta
+        ventas.setFecha(sqlDate);
+
+        // Guardar la venta en la base de datos
         Ventas nuevasVentas = ventasService.saveVentas(ventas);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevasVentas);
+
+        // Crear el recurso de la venta con HATEOAS
+        EntityModel<Ventas> resource = EntityModel.of(nuevasVentas,
+                WebMvcLinkBuilder
+                        .linkTo(WebMvcLinkBuilder.methodOn(VentasController.class).getVentasById(nuevasVentas.getId()))
+                        .withSelfRel());
+
+        // Retornar la respuesta con el recurso creado y el código de estado 201
+        // (CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(resource);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ventas> updateVentas(@PathVariable int id, @RequestBody Ventas updatedVentas) {
+    public ResponseEntity<EntityModel<Ventas>> updateVentas(@PathVariable int id, @RequestBody Ventas updatedVentas) {
         Optional<Ventas> existingVentas = ventasService.getVentasById(id);
 
         if (existingVentas.isPresent()) {
@@ -47,13 +85,15 @@ public class VentasController {
             // Actualizar los campos de las ventas con los datos recibidos
             ventas.setCantidad(updatedVentas.getCantidad());
             ventas.setTotal(updatedVentas.getTotal());
-            ventas.setFecha(updatedVentas.getFecha());
             ventas.setIdProducto(updatedVentas.getIdProducto());
             ventas.setIdVendedor(updatedVentas.getIdVendedor());
 
             // Guardar las ventas actualizadas en la base de datos
             Ventas updated = ventasService.saveVentas(ventas);
-            return ResponseEntity.ok(updated);
+            EntityModel<Ventas> resource = EntityModel.of(updated,
+                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(VentasController.class).getVentasById(id))
+                            .withSelfRel());
+            return ResponseEntity.ok(resource);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -70,11 +110,13 @@ public class VentasController {
         List<Ventas> ventas = ventasService.getAllVentas();
         double gananciasDiarias = 0;
         LocalDate fechaActual = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String fechaActualFormateada = fechaActual.format(formatter);
 
         for (Ventas venta : ventas) {
-            if (venta.getFecha().equals(fechaActualFormateada)) {
+            // Convertir la fecha de SQL Date a LocalDate
+            LocalDate fechaVenta = venta.getFecha().toLocalDate();
+
+            // Verificar si la fecha de venta es la fecha actual
+            if (fechaVenta.equals(fechaActual)) {
                 gananciasDiarias += venta.getTotal();
             }
         }
@@ -87,10 +129,13 @@ public class VentasController {
         double gananciasMensuales = 0;
         LocalDate fechaActual = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        String fechaActualFormateada = fechaActual.format(formatter);
 
         for (Ventas venta : ventas) {
-            if (venta.getFecha().startsWith(fechaActualFormateada)) {
+            // Convertir la fecha de SQL Date a LocalDate
+            LocalDate fechaVenta = venta.getFecha().toLocalDate();
+
+            // Verificar si la fecha de venta corresponde al mes actual
+            if (fechaVenta.format(formatter).equals(fechaActual.format(formatter))) {
                 gananciasMensuales += venta.getTotal();
             }
         }
@@ -105,17 +150,15 @@ public class VentasController {
         int añoActual = fechaActual.getYear();
 
         for (Ventas venta : ventas) {
-            try {
-                LocalDate fechaVenta = LocalDate.parse(venta.getFecha());
-                int añoVenta = fechaVenta.getYear();
+            // Convertir la fecha de SQL Date a LocalDate
+            LocalDate fechaVenta = venta.getFecha().toLocalDate();
 
-                if (añoVenta == añoActual) {
-                    gananciasAnuales += venta.getTotal();
-                }
-            } catch (DateTimeParseException e) {
-                System.err.println("Error al analizar la fecha de la venta: " + e.getMessage());
+            // Verificar si la fecha de venta corresponde al año actual
+            if (fechaVenta.getYear() == añoActual) {
+                gananciasAnuales += venta.getTotal();
             }
         }
         return ResponseEntity.ok(gananciasAnuales);
     }
+
 }

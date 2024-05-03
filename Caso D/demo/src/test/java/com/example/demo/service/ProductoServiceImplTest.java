@@ -30,8 +30,9 @@ public class ProductoServiceImplTest {
     public void testGetAllProductos() {
         // Arrange
         List<Producto> productos = new ArrayList<>();
-        productos.add(new Producto("Producto1", 10.0));
-        productos.add(new Producto("Producto2", 20.0));
+
+        productos.add(new Producto(1, "Producto1", 10.0));
+        productos.add(new Producto(2, "Producto2", 20.0));
         when(productoRepository.findAll()).thenReturn(productos);
 
         // Act
@@ -45,7 +46,7 @@ public class ProductoServiceImplTest {
     @Test
     public void testSaveProducto() {
         // Arrange
-        Producto producto = new Producto("Producto1", 10.0);
+        Producto producto = new Producto(1, "Producto1", 10.0);
         when(productoRepository.save(producto)).thenReturn(producto);
 
         // Act
@@ -60,7 +61,7 @@ public class ProductoServiceImplTest {
     @Test
     public void testGetProductoById() {
         // Arrange
-        Producto producto = new Producto("Producto1", 10.0);
+        Producto producto = new Producto(1, "Producto1", 10.0);
         Optional<Producto> optionalProducto = Optional.of(producto);
         when(productoRepository.findById(1)).thenReturn(optionalProducto);
 
