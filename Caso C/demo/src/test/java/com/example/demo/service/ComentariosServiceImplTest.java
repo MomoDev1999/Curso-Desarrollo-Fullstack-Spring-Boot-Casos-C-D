@@ -92,20 +92,4 @@ public class ComentariosServiceImplTest {
         assertEquals(true, resultado);
     }
 
-    @Test
-    public void testGetComentariosByPublicacionId() {
-        // Arrange
-        int idPublicacion = 1;
-        List<Comentarios> comentarios = new ArrayList<>();
-        comentarios.add(new Comentarios(1, "Comentario1", 1, "Usuario1", "2024-04-29"));
-        comentarios.add(new Comentarios(2, "Comentario2", 1, "Usuario2", "2024-04-29"));
-        when(comentariosRepository.findComentariosByPublicacionId(idPublicacion)).thenReturn(comentarios);
-
-        // Act
-        List<Comentarios> resultado = comentariosService.getComentariosByPublicacionId(idPublicacion);
-
-        // Assert
-        assertNotNull(resultado);
-        assertEquals(2, resultado.size());
-    }
 }

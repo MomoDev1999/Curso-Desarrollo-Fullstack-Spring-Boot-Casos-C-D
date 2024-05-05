@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Comentarios;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,5 +14,5 @@ public interface ComentariosService {
 
     boolean deleteComentario(int id);
 
-    List<Comentarios> getComentariosByPublicacionId(int idPublicacion);
+    List<Comentarios> getComentariosByPublicacionId(int idPublicacion); // Nuevo método
 }

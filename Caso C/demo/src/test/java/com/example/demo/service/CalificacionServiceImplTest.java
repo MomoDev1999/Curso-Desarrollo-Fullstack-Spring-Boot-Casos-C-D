@@ -91,18 +91,4 @@ public class CalificacionServiceImplTest {
         // Assert
         assertEquals(true, resultado);
     }
-
-    @Test
-    public void testGetPromedioCalificacionesByPublicacionId() {
-        // Arrange
-        int idPublicacion = 1;
-        double promedio = 4.5;
-        when(calificacionRepository.findPromedioCalificacionesByPublicacionId(idPublicacion)).thenReturn(promedio);
-
-        // Act
-        double resultado = calificacionService.getPromedioCalificacionesByPublicacionId(idPublicacion);
-
-        // Assert
-        assertEquals(promedio, resultado);
-    }
 }

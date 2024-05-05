@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Publicacion;
 import com.example.demo.service.PublicacionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,14 @@ public class PublicacionController {
     private PublicacionService publicacionService;
 
     @GetMapping
-    public ResponseEntity<List<EntityModel<Publicacion>>> getAllPublicaciones() {
+    public CollectionModel<EntityModel<Publicacion>> getAllPublicaciones() {
         List<EntityModel<Publicacion>> publicaciones = publicacionService.getAllPublicaciones().stream()
                 .map(publicacion -> EntityModel.of(publicacion,
                         Link.of("/publicaciones/" + publicacion.getId()).withSelfRel()))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(publicaciones);
+        Link link = Link.of("/publicaciones").withSelfRel();
+        return CollectionModel.of(publicaciones, link);
     }
 
     @GetMapping("/{id}")
@@ -42,8 +44,9 @@ public class PublicacionController {
     @PostMapping
     public ResponseEntity<EntityModel<Publicacion>> createPublicacion(@RequestBody Publicacion publicacion) {
         Publicacion nuevaPublicacion = publicacionService.savePublicacion(publicacion);
-        return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(nuevaPublicacion,
-                Link.of("/publicaciones/" + nuevaPublicacion.getId()).withSelfRel()));
+        EntityModel<Publicacion> resource = EntityModel.of(nuevaPublicacion,
+                Link.of("/publicaciones/" + nuevaPublicacion.getId()).withSelfRel());
+        return ResponseEntity.status(HttpStatus.CREATED).body(resource);
     }
 
     @PutMapping("/{id}")
@@ -61,8 +64,9 @@ public class PublicacionController {
 
             // Guardar la publicación actualizada en la base de datos
             Publicacion updated = publicacionService.savePublicacion(publicacion);
-            return ResponseEntity.ok(EntityModel.of(updated,
-                    Link.of("/publicaciones/" + updated.getId()).withSelfRel()));
+            EntityModel<Publicacion> resource = EntityModel.of(updated,
+                    Link.of("/publicaciones/" + updated.getId()).withSelfRel());
+            return ResponseEntity.ok(resource);
         } else {
             return ResponseEntity.notFound().build();
         }

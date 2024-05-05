@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Usuario;
 import com.example.demo.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,15 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity<List<EntityModel<Usuario>>> getAllUsuarios() {
+    public ResponseEntity<CollectionModel<EntityModel<Usuario>>> getAllUsuarios() {
         List<EntityModel<Usuario>> usuarios = usuarioService.getAllUsuarios().stream()
                 .map(usuario -> EntityModel.of(usuario,
                         Link.of("/usuarios/" + usuario.getUsername()).withSelfRel()))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(usuarios);
+        Link link = Link.of("/usuarios").withSelfRel();
+        CollectionModel<EntityModel<Usuario>> resources = CollectionModel.of(usuarios, link);
+        return ResponseEntity.ok(resources);
     }
 
     @GetMapping("/{username}")

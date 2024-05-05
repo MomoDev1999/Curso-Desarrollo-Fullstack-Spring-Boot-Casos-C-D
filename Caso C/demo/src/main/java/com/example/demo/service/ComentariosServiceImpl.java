@@ -5,12 +5,15 @@ import com.example.demo.repository.ComentariosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ComentariosServiceImpl implements ComentariosService {
+
     @Autowired
+
     private final ComentariosRepository comentariosRepository;
 
     public ComentariosServiceImpl(ComentariosRepository comentariosRepository) {
@@ -44,6 +47,17 @@ public class ComentariosServiceImpl implements ComentariosService {
 
     @Override
     public List<Comentarios> getComentariosByPublicacionId(int idPublicacion) {
-        return comentariosRepository.findComentariosByPublicacionId(idPublicacion);
+        List<Comentarios> comentarios = comentariosRepository.findAll(); // Obtener todos los comentarios
+        List<Comentarios> comentariosDePublicacion = new ArrayList<>();
+
+        // Filtrar los comentarios por el ID de la publicación
+        for (Comentarios comentario : comentarios) {
+            if (comentario.getIdPublicacion() == idPublicacion) {
+                comentariosDePublicacion.add(comentario);
+            }
+        }
+
+        return comentariosDePublicacion;
     }
+
 }

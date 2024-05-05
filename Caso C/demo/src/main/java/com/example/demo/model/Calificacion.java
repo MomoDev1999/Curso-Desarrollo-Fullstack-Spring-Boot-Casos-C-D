@@ -34,6 +34,10 @@ public class Calificacion extends RepresentationModel<Calificacion> {
         this.fecha = fecha;
     }
 
+    public Calificacion() {
+        // Constructor por defecto sin argumentos
+    }
+
     // Getters
     public int getId() {
         return id;

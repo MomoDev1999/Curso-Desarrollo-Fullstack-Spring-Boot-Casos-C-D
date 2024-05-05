@@ -3,9 +3,11 @@ package com.example.demo.controller;
 import com.example.demo.model.Calificacion;
 import com.example.demo.service.CalificacionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
-import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,52 +23,62 @@ public class CalificacionController {
     private CalificacionService calificacionService;
 
     @GetMapping
-    public ResponseEntity<List<EntityModel<Calificacion>>> getAllCalificaciones() {
+    public CollectionModel<EntityModel<Calificacion>> getAllCalificaciones() {
         List<EntityModel<Calificacion>> calificaciones = calificacionService.getAllCalificaciones().stream()
                 .map(calificacion -> EntityModel.of(calificacion,
-                        Link.of("/calificaciones/" + calificacion.getId()).withSelfRel(),
-                        Link.of("/calificaciones/promedio/" + calificacion.getIdPublicacion()).withRel("promedio")))
+                        WebMvcLinkBuilder.linkTo(CalificacionController.class).slash(calificacion.getId())
+                                .withSelfRel(),
+                        WebMvcLinkBuilder.linkTo(CalificacionController.class).slash("promedio")
+                                .slash(calificacion.getIdPublicacion()).withRel("promedio")))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(calificaciones);
+        Link link = WebMvcLinkBuilder.linkTo(CalificacionController.class).withSelfRel();
+        CollectionModel<EntityModel<Calificacion>> resources = CollectionModel.of(calificaciones, link);
+        return resources;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Calificacion>> getCalificacionById(@PathVariable int id) {
-        Optional<Calificacion> calificacion = calificacionService.getCalificacionById(id);
-        return calificacion.map(cal -> EntityModel.of(cal,
-                Link.of("/calificaciones/" + id).withSelfRel(),
-                Link.of("/calificaciones/promedio/" + cal.getIdPublicacion()).withRel("promedio")))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Calificacion> calificacionOptional = calificacionService.getCalificacionById(id);
+        if (calificacionOptional.isPresent()) {
+            Calificacion calificacion = calificacionOptional.get();
+            EntityModel<Calificacion> resource = EntityModel.of(calificacion,
+                    WebMvcLinkBuilder.linkTo(CalificacionController.class).slash(calificacion.getId()).withSelfRel(),
+                    WebMvcLinkBuilder.linkTo(CalificacionController.class).slash("promedio")
+                            .slash(calificacion.getIdPublicacion()).withRel("promedio"));
+            return ResponseEntity.ok(resource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
     public ResponseEntity<EntityModel<Calificacion>> createCalificacion(@RequestBody Calificacion calificacion) {
         Calificacion nuevaCalificacion = calificacionService.saveCalificacion(calificacion);
-        return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(nuevaCalificacion,
-                Link.of("/calificaciones/" + nuevaCalificacion.getId()).withSelfRel(),
-                Link.of("/calificaciones/promedio/" + nuevaCalificacion.getIdPublicacion()).withRel("promedio")));
+        EntityModel<Calificacion> resource = EntityModel.of(nuevaCalificacion,
+                WebMvcLinkBuilder.linkTo(CalificacionController.class).slash(nuevaCalificacion.getId()).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(CalificacionController.class).slash("promedio")
+                        .slash(nuevaCalificacion.getIdPublicacion()).withRel("promedio"));
+        return ResponseEntity.created(resource.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(resource);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Calificacion>> updateCalificacion(@PathVariable int id,
             @RequestBody Calificacion updatedCalificacion) {
         Optional<Calificacion> existingCalificacion = calificacionService.getCalificacionById(id);
-
         if (existingCalificacion.isPresent()) {
             Calificacion calificacion = existingCalificacion.get();
-            // Actualizar los campos de la calificación con los datos recibidos
             calificacion.setCalificacion(updatedCalificacion.getCalificacion());
             calificacion.setIdPublicacion(updatedCalificacion.getIdPublicacion());
             calificacion.setRealizadaPor(updatedCalificacion.getRealizadaPor());
             calificacion.setFecha(updatedCalificacion.getFecha());
 
-            // Guardar la calificación actualizada en la base de datos
             Calificacion updated = calificacionService.saveCalificacion(calificacion);
-            return ResponseEntity.ok(EntityModel.of(updated,
-                    Link.of("/calificaciones/" + updated.getId()).withSelfRel(),
-                    Link.of("/calificaciones/promedio/" + updated.getIdPublicacion()).withRel("promedio")));
+            EntityModel<Calificacion> resource = EntityModel.of(updated,
+                    WebMvcLinkBuilder.linkTo(CalificacionController.class).slash(updated.getId()).withSelfRel(),
+                    WebMvcLinkBuilder.linkTo(CalificacionController.class).slash("promedio")
+                            .slash(updated.getIdPublicacion()).withRel("promedio"));
+            return ResponseEntity.ok(resource);
         } else {
             return ResponseEntity.notFound().build();
         }

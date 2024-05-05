@@ -38,6 +38,10 @@ public class Comentarios extends RepresentationModel<Comentarios> {
         this.fecha = fecha;
     }
 
+    public Comentarios() {
+
+    }
+
     public int getId() {
         return id;
     }
