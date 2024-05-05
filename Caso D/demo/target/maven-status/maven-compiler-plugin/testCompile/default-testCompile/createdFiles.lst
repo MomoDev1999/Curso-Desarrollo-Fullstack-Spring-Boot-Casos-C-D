@@ -1,7 +1,10 @@
 com\example\demo\service\ProductoServiceImplTest.class
-com\example\demo\service\VendedorServiceImpTest.class
+com\example\demo\controller\VendedorControllerTest.class
+com\example\demo\controller\VentasControllerTest.class
 com\example\demo\service\VendedorServiceImplTest.class
 com\example\demo\DemoApplicationTests.class
 com\example\demo\repository\ProductoRepositoryTest.class
+com\example\demo\controller\ProductoControllerTest.class
 com\example\demo\repository\VentasRepositoryTest.class
 com\example\demo\repository\VendedorRepositoryTest.class
+com\example\demo\service\VentasServiceImplTest.class

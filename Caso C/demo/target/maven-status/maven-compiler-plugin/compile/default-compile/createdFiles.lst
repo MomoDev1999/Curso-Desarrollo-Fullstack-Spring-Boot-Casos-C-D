@@ -17,6 +17,5 @@ com\example\demo\controller\UsuarioController.class
 com\example\demo\service\UsuarioService.class
 com\example\demo\controller\ComentarioController.class
 com\example\demo\service\ComentariosServiceImpl.class
-com\example\demo\controller\XNotFoundException.class
 com\example\demo\model\Publicacion.class
 com\example\demo\repository\ComentariosRepository.class

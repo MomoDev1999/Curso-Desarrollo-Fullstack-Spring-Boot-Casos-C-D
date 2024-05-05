@@ -1,8 +1,10 @@
 com\example\demo\DemoApplication.class
 com\example\demo\service\ProductoServiceImpl.class
 com\example\demo\controller\VendedorController.class
+com\example\demo\controller\VentasNotFoundException.class
 com\example\demo\repository\VendedorRepository.class
 com\example\demo\model\Ventas.class
+com\example\demo\controller\VendedorNotFoundException.class
 com\example\demo\repository\ProductoRepository.class
 com\example\demo\service\ProductoService.class
 com\example\demo\controller\ProductoController.class
@@ -12,6 +14,6 @@ com\example\demo\service\VentasService.class
 com\example\demo\controller\VentasController.class
 com\example\demo\repository\VentasRepository.class
 com\example\demo\service\VendedorServiceImpl.class
-com\example\demo\controller\XNotFoundException.class
 com\example\demo\model\Vendedor.class
 com\example\demo\service\VendedorService.class
+com\example\demo\controller\ProductoNotFoundException.class
